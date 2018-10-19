@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t $IMAGE_NAME . --build-arg ACCESS_TOKEN=$ACCESS_TOKEN --build-arg BINARIES_URL=$BINARIES_URL
+docker build --build-arg ACCESS_TOKEN=$ACCESS_TOKEN --build-arg BINARIES_URL=$BINARIES_URL -t $IMAGE_NAME .
