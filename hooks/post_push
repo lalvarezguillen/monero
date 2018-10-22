@@ -1,0 +1,10 @@
+#!/bin/bash
+
+curl -X POST \
+     -F token=$MONERO_DAEMON_TOKEN \
+     -F ref=$BRANCH_MAIN \
+     $MONERO_DAEMON_URL
+curl -X POST \
+     -F token=$MONERO_DAEMON_TOKEN \
+     -F ref=$BRANCH_STAGE \
+     $MONERO_DAEMON_URL
