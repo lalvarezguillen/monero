@@ -2,8 +2,9 @@ FROM debian:stable-slim as builder
 
 WORKDIR /data
 
-RUN apt-get update -qq && apt-get -y install \
-        cmake \
+RUN apt-get update -qq && apt-get -y install --no-install-recommends \
+        ca-certificates \
+        build-essential \
         git \
         curl
 
@@ -24,9 +25,10 @@ RUN cd /data \
     && cp su-exec /data
 
 RUN apt-get purge -y \
+        ca-certificates \
+        build-essential \
         git \
         curl \
-        cmake \
     && apt-get autoremove --purge -y \
     && apt-get clean \
     && rm -rf /var/tmp/* /tmp/* /var/lib/apt \
