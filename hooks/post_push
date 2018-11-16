@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ "$RELEASE_BRANCH" = "$SOURCE_BRANCH" ]; then
+  curl -X POST \
+       -F token=$MONERO_TESTNET_TOKEN \
+       -F ref=$SOURCE_BRANCH \
+       $MONERO_TESTNET_URL
+fi
+
 if [ "$PATCHED_BRANCH" = "$SOURCE_BRANCH" ]; then
   curl -X POST \
        -F token=$MONERO_DAEMON_TOKEN \
