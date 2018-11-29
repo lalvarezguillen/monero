@@ -1,17 +1,17 @@
 version: '2'
 
 services:
-  monerod:
+  monerod-testnet:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         BINARIES_URL: <some_gitlab_or_github_location>
         ACCESS_TOKEN: PRIVATE-TOKEN
-    command: --stagenet --data-dir /monero --non-interactive
+    command: --testnet --data-dir /monero --non-interactive
     volumes:
       # /monero in container should eventually contain the contents of the folder .bitmonero
-      - <path_to_contents_of_.bitmonero>:/monero
+      - <path/to/and/including/.bitmonero>:/monero
     ports:
       - "28080:28080"
       - "28081:28081"
