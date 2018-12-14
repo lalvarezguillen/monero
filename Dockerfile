@@ -11,9 +11,9 @@ RUN apt-get update -qq && apt-get -y install --no-install-recommends \
 ARG BINARIES_URL
 ARG ACCESS_TOKEN
 
-RUN curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monero-wallet-cli --output /data/monero-wallet-cli \
-    && curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monero-wallet-rpc --output /data/monero-wallet-rpc \
-    && curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monerod --output /data/monerod \
+RUN curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monero-wallet-cli/raw?ref=master --output /data/monero-wallet-cli \
+    && curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monero-wallet-rpc/raw?ref=master --output /data/monero-wallet-rpc \
+    && curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monerod/raw?ref=master --output /data/monerod \
     && chmod 755 /data/monerod \
     && chmod 755 /data/monero-wallet-cli \
     && chmod 755 /data/monero-wallet-rpc
@@ -44,6 +44,11 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 WORKDIR /monero
+
+RUN monerod --version > version.txt \
+    && cat /etc/os-release > system.txt \
+    && ldd $(command -v monerod) > dependencies.txt
+
 VOLUME ["/monero"]
 
 ENV USER_ID 1000
