@@ -6,8 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
+        PROTOCOL: https://
         BINARIES_URL: <some_gitlab_or_github_location>
-        ACCESS_TOKEN: PRIVATE-TOKEN
+        DEPLOY_TOKEN: DEPLOY-TOKEN
+        DEPLOY_USER: DEPLOY-USER
     command: --testnet --data-dir /monero --non-interactive
     volumes:
       # /monero in container should eventually contain the contents of the folder .bitmonero
