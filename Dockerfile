@@ -14,10 +14,6 @@ ARG BINARIES_URL
 ARG DEPLOY_TOKEN
 ARG DEPLOY_USER
 
-RUN curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monero-wallet-cli/raw?ref=master --output /data/monero-wallet-cli \
-    && curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monero-wallet-rpc/raw?ref=master --output /data/monero-wallet-rpc \
-    && curl --header "PRIVATE-TOKEN: $ACCESS_TOKEN" $BINARIES_URL/monerod/raw?ref=master --output /data/monerod \
-
 RUN git clone --depth 1 $PROTOCOL$DEPLOY_USER:$DEPLOY_TOKEN@$BINARIES_URL monero \
     && cp monero/monerod /data \
     && cp monero/monero-wallet-rpc /data \

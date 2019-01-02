@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker build --build-arg ACCESS_TOKEN=$ACCESS_TOKEN --build-arg BINARIES_URL=$BINARIES_URL -t $IMAGE_NAME .
+docker build --pull --build-arg PROTOCOL=$PROTOCOL --build-arg DEPLOY_USER=$DEPLOY_USER --build-arg DEPLOY_TOKEN=$DEPLOY_TOKEN --build-arg BINARIES_URL=$BINARIES_URL -t $IMAGE_NAME .
 
