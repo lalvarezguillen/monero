@@ -39,6 +39,8 @@ RUN apt-get purge -y \
     && rm -rf /data/su-exec-clone \
     && rm -rf /data/monero
 
+# /var/lib/apt/lists/* \
+
 FROM debian:stable-slim
 COPY --from=builder /data/monerod /usr/local/bin/
 COPY --from=builder /data/monero-wallet-rpc /usr/local/bin/
@@ -47,12 +49,14 @@ COPY --from=builder /data/su-exec /usr/local/bin/
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+COPY torsocks.conf /etc/tor/torsocks.conf
 
 WORKDIR /monero
 
 RUN monerod --version > /version.txt \
     && cat /etc/os-release > /system.txt \
-    && ldd $(command -v monerod) > /dependencies.txt
+    && ldd $(command -v monerod) > /dependencies.txt \
+    && torsocks --version > /torsocks.txt
 
 VOLUME ["/monero"]
 
@@ -64,5 +68,6 @@ ENV RPC_BIND_IP 0.0.0.0
 ENV RPC_BIND_PORT 28081
 ENV P2P_BIND_IP 0.0.0.0
 ENV P2P_BIND_PORT 28080
+ENV USE_TORSOCKS NO
 
 ENTRYPOINT ["/entrypoint.sh"]
