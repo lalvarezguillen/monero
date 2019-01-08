@@ -53,6 +53,12 @@ COPY torsocks.conf /etc/tor/torsocks.conf
 
 WORKDIR /monero
 
+RUN apt-get update && apt-get install -y \
+        torsocks \
+    && apt-get autoremove --purge -y \
+    && apt-get clean \
+    && rm -rf /var/tmp/* /tmp/* /var/lib/apt
+
 RUN monerod --version > /version.txt \
     && cat /etc/os-release > /system.txt \
     && ldd $(command -v monerod) > /dependencies.txt \
