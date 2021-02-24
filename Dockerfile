@@ -237,7 +237,7 @@ WORKDIR /data
 # Using 'USE_SINGLE_BUILDDIR=1 make' creates a unified build dir (/monero.git/build/release/bin)
 
 ARG PROJECT_URL=https://github.com/moneromooo-monero/bitmonero.git
-ARG BRANCH=master
+ARG BRANCH=msv
 ARG BUILD_PATH=/monero.git/build/release/bin
 ARG BUILD_BRANCH=msv
 
@@ -247,10 +247,10 @@ ENV LDFLAGS='-static-libstdc++'
 
 # COPY patch.diff /data
 
-RUN echo "\e[32mcloning: $PROJECT_URL on branch: $BRANCH\e[39m" \
-    && git clone -n --branch "$BRANCH" --single-branch --depth 1 --recursive $PROJECT_URL monero.git > /dev/null \
+RUN echo "\e[32mcloning: $PROJECT_URL on branch: msv\e[39m" \
+    && git clone -n --branch "msv" --single-branch --depth 1 --recursive $PROJECT_URL monero.git > /dev/null \
     && cd monero.git || exit 1 \
-    && git checkout "$BUILD_BRANCH" \
+    && git checkout "msv" \
     && git submodule update --init --force \
     # && echo "\e[32mapplying  patch\e[39m" \
     # && git apply --stat ../patch.diff \
