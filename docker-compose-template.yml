@@ -1,13 +1,14 @@
 version: '2'
 
 services:
-  monerod-testnet:
+  monerod:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        BRANCH: master
-    command: --testnet --data-dir /monero --non-interactive
+        BRANCH: v0.16.0.1
+        DEBIAN_VERSION: "stable-20200130-slim"
+    command: --testnet --data-dir /monero
     volumes:
       # /monero in container should eventually contain the contents of the folder .bitmonero
       - <path/to/and/including/.bitmonero>:/monero
@@ -19,8 +20,12 @@ services:
       - P2P_BIND_IP=0.0.0.0
       - P2P_BIND_PORT=28080
       - LOG_LEVEL=0
+      - RPC_USER=""
+      - RPC_PASSWD=""
       - RPC_BIND_IP=0.0.0.0
       - RPC_BIND_PORT=28081
+      - USE_TORSOCKS=NO
+      - USE_TOR=NO
     restart: unless-stopped
     logging:
       driver: "json-file"

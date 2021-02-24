@@ -1,9 +1,79 @@
 #!/bin/bash
 
-BRANCH="master"
-if [ -z "$BRANCH" ];then
-  echo "no branch could be found."
-  exit 1
-fi
-docker build --pull --build-arg BRANCH=$BRANCH -t $IMAGE_NAME .
+# docker hub's variable 'SOURCE_BRANCH' is used as 
+# * monero branch/tag to clone
+# * docker image tag to push
 
+if [ "$SOURCE_BRANCH" = "most_recent_tag" ]; then
+    MOST_RECENT_TAG=$(curl -s https://api.github.com/repos/monero-project/monero/tags | grep -i name | awk 'NR==1{print $2}' | tr -d "\",")
+    export SOURCE_BRANCH="$MOST_RECENT_TAG"
+    export BUILD_BRANCH="$MOST_RECENT_TAG"
+elif [ "$SOURCE_BRANCH" = "master" ]; then
+    MASTER_COMMIT_SHA=$(curl -s https://api.github.com/repos/monero-project/monero/branches/master  | grep -i sha | awk 'NR==1{print $2}' | tr -d "\",")
+    export BUILD_BRANCH="$MASTER_COMMIT_SHA"
+fi
+
+docker pull $DOCKER_REPO:dependencies1 || true
+
+docker build \
+  --pull \
+  --target dependencies1 \
+  --cache-from $DOCKER_REPO:dependencies1 \
+  -f ./Dockerfile \
+  -t $DOCKER_REPO:dependencies1 .
+
+docker push $DOCKER_REPO:dependencies1
+
+docker pull $DOCKER_REPO:dependencies2 || true
+
+docker build \
+  --pull \
+  --target dependencies2 \
+  --cache-from $DOCKER_REPO:dependencies1 \
+  --cache-from $DOCKER_REPO:dependencies2 \
+  -f ./Dockerfile \
+  -t $DOCKER_REPO:dependencies2 .
+
+docker push $DOCKER_REPO:dependencies2
+
+docker pull $DOCKER_REPO:dependencies3 || true
+
+docker build \
+  --pull \
+  --target dependencies3 \
+  --cache-from $DOCKER_REPO:dependencies1 \
+  --cache-from $DOCKER_REPO:dependencies2 \
+  --cache-from $DOCKER_REPO:dependencies3 \
+  -f ./Dockerfile \
+  -t $DOCKER_REPO:dependencies3 .
+
+docker push $DOCKER_REPO:dependencies3
+
+docker pull $DOCKER_REPO:builder || true
+
+docker build \
+  --pull \
+  --target builder \
+  --cache-from $DOCKER_REPO:dependencies1 \
+  --cache-from $DOCKER_REPO:dependencies2 \
+  --cache-from $DOCKER_REPO:dependencies3 \
+  --cache-from $DOCKER_REPO:builder \
+  --build-arg BRANCH=$SOURCE_BRANCH \
+  --build-arg BUILD_BRANCH=$BUILD_BRANCH \
+  -f ./Dockerfile \
+  -t $DOCKER_REPO:builder .
+
+docker push $DOCKER_REPO:builder
+docker pull $IMAGE_NAME || true
+
+docker build \
+  --pull \
+  --cache-from $DOCKER_REPO:dependencies1 \
+  --cache-from $DOCKER_REPO:dependencies2 \
+  --cache-from $DOCKER_REPO:dependencies3 \
+  --cache-from $DOCKER_REPO:builder \
+  --cache-from $IMAGE_NAME \
+  --build-arg BRANCH=$SOURCE_BRANCH \
+  --build-arg BUILD_BRANCH=$BUILD_BRANCH \
+  -f ./Dockerfile \
+  -t $IMAGE_NAME .

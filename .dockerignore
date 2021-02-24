@@ -1,3 +1,7 @@
 *
 !Dockerfile
 !entrypoint.sh
+!torsocks.conf
+!torrc
+!inputrc
+!patch.diff

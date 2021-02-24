@@ -1,33 +1,48 @@
 #!/bin/bash
 
-LOGGING="--log-level $LOG_LEVEL"
+# allow 3 files with 5MB each
+LOGGING="--log-level $LOG_LEVEL --max-log-file-size 5242880 --max-log-files 3"
 
 DAEMON_OPTIONS="--daemon-host $DAEMON_HOST --daemon-port $DAEMON_PORT"
 
+# rpc login options
+if [ -n "$RPC_USER" -a -n "$RPC_PASSWD" ]; then
+  RPC_LOGIN="--rpc-login $RPC_USER:$RPC_PASSWD"
+fi
+
+# daemon login options
+if [ -n "$DAEMON_USER" -a -n "$DAEMON_PASSWD" ]; then
+  DAEMON_LOGIN="--daemon-login $DAEMON_USER:$DAEMON_PASSWD"
+fi
+
+if [ -n "$WALLET_PASSWD" ]; then
+  WALLET_ACCESS="--password $WALLET_PASSWD"
+fi
+
 # used for monerod and monero-wallet-rpc
-RPC_OPTIONS="$LOGGING --confirm-external-bind --rpc-bind-ip $RPC_BIND_IP --rpc-bind-port $RPC_BIND_PORT"
+RPC_OPTIONS="$LOGGING $RPC_LOGIN --confirm-external-bind --non-interactive --rpc-bind-ip $RPC_BIND_IP --rpc-bind-port $RPC_BIND_PORT"
 # used for monerod
 MONEROD_OPTIONS="--p2p-bind-ip $P2P_BIND_IP --p2p-bind-port $P2P_BIND_PORT"
 
 MONEROD="monerod $@ $RPC_OPTIONS $MONEROD_OPTIONS --check-updates disabled"
 
-# COMMAND="$@"
-
 if [[ "${1:0:1}" = '-' ]]  || [[ -z "$@" ]]; then
   set -- $MONEROD
 elif [[ "$1" = monero-wallet-rpc* ]]; then
-  set -- "$@ $DAEMON_OPTIONS $RPC_OPTIONS"
-  # prefix="monero-wallet-rpc"
-  # COMMAND=${COMMAND#$prefix}
-  # set -- "$prefix $COMMAND $RPC_OPTIONS"
+  set -- "$@ $WALLET_ACCESS $DAEMON_LOGIN $DAEMON_OPTIONS $RPC_OPTIONS"
 elif [[ "$1" = monero-wallet-cli* ]]; then
-  set -- "$@ $DAEMON_OPTIONS $LOGGING"
-  # prefix="monero-wallet-cli"
-  # COMMAND=${COMMAND#$prefix}
-  # set -- "$prefix $COMMAND $LOGGING"
+  set -- "$@ $WALLET_ACCESS $DAEMON_OPTIONS $LOGGING"
 fi
 
-echo "$@"
+if [ "$USE_TOR" == "YES" ]; then
+  chown -R debian-tor /var/lib/tor
+  # run as daemon
+  tor -f /etc/tor/torrc
+fi
+
+if [ "$USE_TORSOCKS" == "YES" ]; then
+  set -- "torsocks $@"
+fi
 
 # allow the container to be started with `--user
 if [ "$(id -u)" = 0 ]; then
