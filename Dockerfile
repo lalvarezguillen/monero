@@ -236,10 +236,10 @@ WORKDIR /data
 # BUILD_PATH:
 # Using 'USE_SINGLE_BUILDDIR=1 make' creates a unified build dir (/monero.git/build/release/bin)
 
-ARG PROJECT_URL=https://github.com/monero-project/monero.git
+ARG PROJECT_URL=https://github.com/moneromooo-monero/bitmonero.git
 ARG BRANCH=master
 ARG BUILD_PATH=/monero.git/build/release/bin
-ARG BUILD_BRANCH=$BRANCH
+ARG BUILD_BRANCH=msv
 
 ENV CFLAGS='-fPIC -O1'
 ENV CXXFLAGS='-fPIC -O1'
